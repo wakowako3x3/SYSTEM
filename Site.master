@@ -1,0 +1,303 @@
+<%@ Master Language="C#" AutoEventWireup="true" CodeFile="Site.master.cs" Inherits="Site" %>
+<!DOCTYPE html>
+<html lang="en">
+<head runat="server">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>FileIO System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet" />
+    <asp:ContentPlaceHolder ID="HeadContent" runat="server" />
+    <style>
+        /* ── RESET & BASE ─────────────────────────── */
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --bg:       #0a0c10;
+            --surface:  #111318;
+            --card:     #16191f;
+            --border:   #1e2330;
+            --accent:   #00e5ff;
+            --accent2:  #7c4dff;
+            --success:  #00e676;
+            --warning:  #ffc400;
+            --danger:   #ff5252;
+            --text:     #e8eaf0;
+            --muted:    #6b7280;
+            --font:     'Syne', sans-serif;
+            --mono:     'DM Mono', monospace;
+        }
+
+        html, body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: var(--font);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* ── NAVBAR ───────────────────────────────── */
+        .navbar {
+            position: sticky; top: 0; z-index: 1000;
+            background: rgba(10,12,16,.85);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+            display: flex; align-items: center;
+            padding: 0 2rem;
+            height: 64px;
+            gap: 0;
+        }
+        .nav-brand {
+            display: flex; align-items: center; gap: .6rem;
+            font-size: 1.15rem; font-weight: 800;
+            letter-spacing: -.5px; color: var(--text);
+            text-decoration: none; margin-right: 2.5rem;
+            white-space: nowrap;
+        }
+        .nav-brand .dot { color: var(--accent); }
+        .nav-links {
+            display: flex; align-items: center; gap: .25rem; flex: 1;
+        }
+        .nav-link {
+            display: flex; align-items: center; gap: .5rem;
+            padding: .5rem 1rem; border-radius: 8px;
+            color: var(--muted); text-decoration: none;
+            font-size: .88rem; font-weight: 600;
+            letter-spacing: .3px;
+            transition: color .2s, background .2s;
+            white-space: nowrap;
+        }
+        .nav-link:hover  { color: var(--text); background: var(--card); }
+        .nav-link.active { color: var(--accent); background: rgba(0,229,255,.07); }
+        .nav-link i { font-size: .85rem; }
+
+        .nav-badge {
+            background: var(--accent2);
+            color: #fff; font-size: .65rem; font-weight: 700;
+            padding: 1px 6px; border-radius: 20px;
+            min-width: 18px; text-align: center;
+        }
+
+        /* ── MAIN LAYOUT ──────────────────────────── */
+        .main-wrapper {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 2.5rem 2rem;
+        }
+
+        /* ── PAGE HEADER ──────────────────────────── */
+        .page-header {
+            margin-bottom: 2rem;
+        }
+        .page-header h1 {
+            font-size: 2rem; font-weight: 800;
+            letter-spacing: -1px;
+            line-height: 1;
+        }
+        .page-header h1 span { color: var(--accent); }
+        .page-header p {
+            color: var(--muted); font-size: .92rem;
+            margin-top: .4rem; font-family: var(--mono);
+        }
+
+        /* ── CARDS ────────────────────────────────── */
+        .card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        .card-title {
+            font-size: 1rem; font-weight: 700;
+            letter-spacing: .3px;
+            margin-bottom: 1.2rem;
+            display: flex; align-items: center; gap: .5rem;
+        }
+        .card-title i { color: var(--accent); font-size: .9rem; }
+
+        /* ── BUTTONS ──────────────────────────────── */
+        .btn {
+            display: inline-flex; align-items: center; gap: .45rem;
+            padding: .55rem 1.2rem; border-radius: 8px;
+            font-family: var(--font); font-size: .85rem; font-weight: 600;
+            cursor: pointer; border: none; text-decoration: none;
+            transition: all .18s; white-space: nowrap;
+        }
+        .btn-primary   { background: var(--accent);  color: #000; }
+        .btn-primary:hover  { background: #33eaff; transform: translateY(-1px); box-shadow: 0 6px 20px rgba(0,229,255,.3); }
+        .btn-danger    { background: var(--danger);  color: #fff; }
+        .btn-danger:hover   { background: #ff7070; transform: translateY(-1px); }
+        .btn-success   { background: var(--success); color: #000; }
+        .btn-success:hover  { background: #33eb8e; transform: translateY(-1px); }
+        .btn-ghost     { background: var(--border);  color: var(--text); }
+        .btn-ghost:hover    { background: #2a2f3d; }
+        .btn-sm { padding: .35rem .85rem; font-size: .78rem; }
+
+        /* ── FORM ELEMENTS ────────────────────────── */
+        .form-control {
+            width: 100%;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            color: var(--text);
+            border-radius: 8px;
+            padding: .6rem .9rem;
+            font-family: var(--mono); font-size: .88rem;
+            transition: border-color .2s;
+        }
+        .form-control:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(0,229,255,.1);
+        }
+        .form-label {
+            display: block; font-size: .8rem; font-weight: 700;
+            color: var(--muted); letter-spacing: .5px;
+            text-transform: uppercase; margin-bottom: .4rem;
+        }
+        .form-group { margin-bottom: 1rem; }
+
+        /* ── FILE INPUT ───────────────────────────── */
+        .file-drop {
+            border: 2px dashed var(--border);
+            border-radius: 12px;
+            padding: 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: border-color .2s, background .2s;
+        }
+        .file-drop:hover {
+            border-color: var(--accent);
+            background: rgba(0,229,255,.03);
+        }
+        .file-drop i { font-size: 2.5rem; color: var(--accent); margin-bottom: .75rem; }
+        .file-drop p { color: var(--muted); font-size: .88rem; }
+        .file-drop input[type=file] { display: none; }
+
+        /* ── TABLE ────────────────────────────────── */
+        .data-table { width: 100%; border-collapse: collapse; }
+        .data-table th {
+            text-align: left; font-size: .72rem; font-weight: 700;
+            text-transform: uppercase; letter-spacing: .8px;
+            color: var(--muted); padding: .6rem 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+        .data-table td {
+            padding: .85rem 1rem; font-size: .87rem;
+            border-bottom: 1px solid rgba(30,35,48,.6);
+            font-family: var(--mono);
+        }
+        .data-table tr:last-child td { border-bottom: none; }
+        .data-table tr:hover td { background: rgba(255,255,255,.02); }
+
+        /* ── BADGES ───────────────────────────────── */
+        .badge {
+            display: inline-flex; align-items: center; gap: .3rem;
+            padding: .25rem .7rem; border-radius: 20px;
+            font-size: .72rem; font-weight: 700; letter-spacing: .3px;
+        }
+        .badge-pending   { background: rgba(255,196,0,.12);  color: var(--warning); }
+        .badge-completed { background: rgba(0,230,118,.12);  color: var(--success); }
+        .badge-upload    { background: rgba(0,229,255,.12);  color: var(--accent); }
+        .badge-download  { background: rgba(124,77,255,.12); color: var(--accent2); }
+        .badge-delete    { background: rgba(255,82,82,.12);  color: var(--danger); }
+
+        /* ── STATS ROW ────────────────────────────── */
+        .stats-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; }
+        .stat-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.2rem 1.4rem;
+        }
+        .stat-label { font-size: .72rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .6px; }
+        .stat-value { font-size: 1.8rem; font-weight: 800; margin-top: .2rem; }
+        .stat-value.accent  { color: var(--accent); }
+        .stat-value.success { color: var(--success); }
+        .stat-value.warning { color: var(--warning); }
+        .stat-value.danger  { color: var(--danger); }
+
+        /* ── ALERTS ───────────────────────────────── */
+        .alert {
+            display: flex; align-items: center; gap: .75rem;
+            padding: .85rem 1.1rem; border-radius: 10px;
+            font-size: .88rem; margin-bottom: 1rem;
+            border-left: 3px solid;
+        }
+        .alert-success { background: rgba(0,230,118,.08); border-color: var(--success); color: var(--success); }
+        .alert-danger  { background: rgba(255,82,82,.08);  border-color: var(--danger);  color: var(--danger); }
+        .alert-info    { background: rgba(0,229,255,.08);  border-color: var(--accent);  color: var(--accent); }
+
+        /* ── SCROLLBAR ────────────────────────────── */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: var(--bg); }
+        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+        /* ── EMPTY STATE ──────────────────────────── */
+        .empty-state {
+            text-align: center; padding: 3rem 1rem;
+            color: var(--muted);
+        }
+        .empty-state i { font-size: 3rem; margin-bottom: 1rem; opacity: .3; }
+        .empty-state p { font-size: .92rem; }
+    </style>
+</head>
+<body>
+<form id="MainForm" runat="server">
+
+<nav class="navbar">
+    <a href="Default.aspx" class="nav-brand">
+        <i class="fa-solid fa-database" style="color:var(--accent)"></i>
+        File<span class="dot">IO</span>
+    </a>
+    <div class="nav-links">
+        <a href="Default.aspx"    class="nav-link <%= Page.AppRelativeVirtualPath.Contains("Default")  ? "active" : "" %>">
+            <i class="fa-solid fa-house-chimney"></i> Dashboard
+        </a>
+        <a href="Files.aspx"      class="nav-link <%= Page.AppRelativeVirtualPath.Contains("Files")    ? "active" : "" %>">
+            <i class="fa-solid fa-folder-open"></i> File Manager
+        </a>
+        <a href="Upload.aspx"     class="nav-link <%= Page.AppRelativeVirtualPath.Contains("Upload")   ? "active" : "" %>">
+            <i class="fa-solid fa-upload"></i> Upload
+        </a>
+        <a href="IOQueue.aspx"    class="nav-link <%= Page.AppRelativeVirtualPath.Contains("IOQueue")  ? "active" : "" %>">
+            <i class="fa-solid fa-layer-group"></i> I/O Queue
+            <%
+                int pending = 0;
+                try { pending = FileManager.GetPendingCount(); } catch {}
+                if (pending > 0) {
+            %>
+            <span class="nav-badge"><%= pending %></span>
+            <% } %>
+        </a>
+    </div>
+</nav>
+
+<div class="main-wrapper">
+    <asp:ContentPlaceHolder ID="MainContent" runat="server" />
+</div>
+
+<script>
+    // Highlight active file-drop zone on drag
+    document.querySelectorAll('.file-drop').forEach(function(zone) {
+        var input = zone.querySelector('input[type=file]');
+        zone.addEventListener('click', function() { if(input) input.click(); });
+        zone.addEventListener('dragover', function(e) { e.preventDefault(); zone.style.borderColor='var(--accent)'; });
+        zone.addEventListener('dragleave', function() { zone.style.borderColor=''; });
+        zone.addEventListener('drop', function(e) {
+            e.preventDefault(); zone.style.borderColor='';
+            if(input && e.dataTransfer.files.length) {
+                input.files = e.dataTransfer.files;
+                var label = zone.querySelector('p');
+                if(label) label.textContent = e.dataTransfer.files[0].name;
+            }
+        });
+        if(input) input.addEventListener('change', function() {
+            var label = zone.querySelector('p');
+            if(label && input.files.length) label.textContent = input.files[0].name;
+        });
+    });
+</script>
+</form>
+</body>
+</html>
